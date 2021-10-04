@@ -7,7 +7,7 @@
     "start": "node build/index.js",
     "test": "node build/index.js --debug"
   },
-  "author": "YOUR NAME HERE",
+  "author": "Emmett Storey",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.4",
