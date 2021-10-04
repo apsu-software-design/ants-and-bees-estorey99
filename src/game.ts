@@ -1,8 +1,22 @@
 import {Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt} from './ants';
-
+/**
+ * @Place Holds info about a specific place in the tunnel.
+ */
 class Place {
+  /**
+   *The Ant that is on this Place. 
+   *If there is no Ant then it is undefined
+   */
   protected ant:Ant;
+  /**
+   * The GuardAnt might be that on this place.
+   * If there is no GuardAnt then it is undefined.
+   */
   protected guard:GuardAnt;
+  /**
+   * The Bee that is standing here.
+   *  If there is no Bee it is undefined.
+   */
   protected bees:Bee[] = [];
 
   constructor(readonly name:string,
@@ -28,7 +42,6 @@ class Place {
   }
 
   getBees():Bee[] { return this.bees; }
-
   getClosestBee(maxDistance:number, minDistance:number = 0):Bee {
 		let p:Place = this;
 		for(let dist = 0; p!==undefined && dist <= maxDistance; dist++) {
@@ -39,7 +52,11 @@ class Place {
 		}
 		return undefined;
   }
-
+/**
+ * 
+ * @param ant An {@link Ant} that is to be place in this location. 
+ * @returns 
+ */
   addAnt(ant:Ant):boolean {
     if(ant instanceof GuardAnt) {
       if(this.guard === undefined){
@@ -87,12 +104,18 @@ class Place {
     this.bees.forEach((bee) => bee.setPlace(undefined) );
     this.bees = [];
   }
-
+/**
+ * Moves a to the next Place closer to the Ant Colony.
+ * @param bee Bee that is being moved closer to the Ant Colony.
+ */
   exitBee(bee:Bee):void {
     this.removeBee(bee);
     this.exit.addBee(bee);  
   }
-
+/**
+ * Removes either a {@link Bee} or {@link Ant} from the board.
+ * @param insect The insect to be removed from the board.
+ */
   removeInsect(insect:Insect) {
     if(insect instanceof Ant){
       this.removeAnt();
@@ -101,7 +124,9 @@ class Place {
       this.removeBee(insect);
     }
   }
-
+/**
+ * If any {@link Ant} beside {@link ScubaAnt} is in a tunnel with water the Ant is removed.
+ */
   act() {
     if(this.water){
       if(this.guard){
@@ -114,14 +139,26 @@ class Place {
   }
 }
 
-
+/**
+ * The home of the bees and where they spawn from. 
+ */
 class Hive extends Place {
+  /**The {@link Bee} to be spawned each wave.*/
   private waves:{[index:number]:Bee[]} = {}
-
+/**
+ * 
+ * @param beeArmor The armor of the bees produced by the hive.
+ * @param beeDamage The sting damage of bees produced by the hive.
+ */
   constructor(private beeArmor:number, private beeDamage:number){
     super('Hive');
   }
-
+/**
+ * 
+ * @param attackTurn The number of waves there will be. Each wave will spawn {@link numBees} amount of bees.
+ * @param numBees The number of {@link Bee} to be spawned.
+ * @returns 
+ */
   addWave(attackTurn:number, numBees:number):Hive {
     let wave:Bee[] = [];
     for(let i=0; i<numBees; i++) {
@@ -132,7 +169,13 @@ class Hive extends Place {
     this.waves[attackTurn] = wave;
     return this;
   }
-  
+  /**
+   * For each {@link Bee} to be spawned this wave a random number 
+   * is generated to determine the entrance the bee will spawn at.
+   * @param colony The ant colony that is being invaded by bees.
+   * @param currentTurn The current turn of the game.
+   * @returns The Bees that will be spawned this turn.
+   */
   invade(colony:AntColony, currentTurn:number): Bee[]{
     if(this.waves[currentTurn] !== undefined) {
       this.waves[currentTurn].forEach((bee) => {
@@ -149,14 +192,26 @@ class Hive extends Place {
   }
 }
 
-
+/**
+ * @AntColony The colony of the ant and where ants spawn 
+ */
 class AntColony {
   private food:number;
   private places:Place[][] = [];
   private beeEntrances:Place[] = [];
+  /**
+   * The location of the ant's Queen.
+   */
   private queenPlace:Place = new Place('Ant Queen');
+  /**The types of boost and how much the colony has of them. */
   private boosts:{[index:string]:number} = {'FlyingLeaf':1,'StickyLeaf':1,'IcyLeaf':1,'BugSpray':0}
-
+/**
+ * 
+ * @param startingFood 
+ * @param numTunnels 
+ * @param tunnelLength 
+ * @param moatFrequency The frequency of a tunnel being submerged in water.
+ */
   constructor(startingFood:number, numTunnels:number, tunnelLength:number, moatFrequency=0){
     this.food = startingFood;
 
@@ -203,7 +258,12 @@ class AntColony {
     this.boosts[boost] = this.boosts[boost]+1;
     console.log('Found a '+boost+'!');
   }
-
+/**
+ * 
+ * @param ant The ant that is being spawned.
+ * @param place Where the ant is being put down.
+ * @returns Whether there is not enough food or if the tunnel is already occupied by another ant.
+ */
   deployAnt(ant:Ant, place:Place):string {
     if(this.food >= ant.getFoodCost()){
       let success = place.addAnt(ant);
@@ -248,7 +308,9 @@ class AntColony {
       bee.act();
     });
   }
-
+/**
+ * 
+ */
   placesAct() {
     for(let i=0; i<this.places.length; i++) {
       for(let j=0; j<this.places[i].length; j++) {
@@ -280,11 +342,21 @@ class AntColony {
   }
 }
 
-
+/**
+ * @AntGame
+ */
 class AntGame {
   private turn:number = 0;
+  /**
+   * 
+   * @param colony The ant colony for the current game.
+   * @param hive The bee hive for the current game.
+   */
   constructor(private colony:AntColony, private hive:Hive){}
-
+  /**
+   * Allows the User to place ants, give boosts and attack bees.
+   * Makes the {@link Bee}s attack the ants in the {@link Place} in front of them
+   */
   takeTurn() {
     console.log('');
     this.colony.antsAct();
@@ -296,7 +368,10 @@ class AntGame {
   }
 
   getTurn() { return this.turn; }
-
+/**
+ * If All the {@link Bee}s that are in the {@link AntColony} and 
+ * @returns 
+ */
   gameIsWon():boolean|undefined {
     if(this.colony.queenHasBees()){
       return false;
@@ -306,7 +381,12 @@ class AntGame {
     }   
     return undefined;
   }
-
+/**
+ * 
+ * @param antType The type of {@link Ant} to be deployed
+ * @param placeCoordinates The {@link Place} whete the ant is to be deployed.
+ * @returns Message if invalid ant type is given or if invalid place is given.
+ */
   deployAnt(antType:string, placeCoordinates:string):string {
     let ant;
     switch(antType.toLowerCase()) {

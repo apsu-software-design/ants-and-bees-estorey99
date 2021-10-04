@@ -11,10 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.4",
+    "typedoc-default-themes": "file:typedoc-default-themes-0.12.10.tgz",
     "vorpal": "^1.11.4"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.50",
-    "@types/node": "^7.0.0"
+    "@types/node": "^7.0.0",
+    "typedoc": "^0.22.5"
   }
 }

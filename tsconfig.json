@@ -4,8 +4,12 @@
         "module": "commonjs",
         "sourceMap": true,
         "outDir": "build/",
-        "removeComments": true,
+        "removeComments": false,
         "alwaysStrict": true
+    },
+"typedocOptions": {
+        "entryPoints": ["src/index.ts","src/ants.ts","src/game.ts","src/ui.ts"],
+        "out": "docs"
     },
     "include": [
         "src/**/*"
@@ -13,4 +17,5 @@
     "exclude": [
         "node_modules"
     ]
+
 }
